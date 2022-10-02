@@ -167,9 +167,9 @@ public class AccountHistoryServiceV1 {
 ## 3. EntityListener 를 통한 방법의 한계
 
 1. 같은 LifeCycle 의 콜백 함수가 존재할 경우 우선순위에 의해 하나만 동작한다.
-  - 예를 들어, AuditingEntityListener 와 같은 콜백함수가 존재하면 우선순위에 의해 동작하지 않을 수도 있다.
+   - 예를 들어, AuditingEntityListener 와 같은 콜백함수가 존재하면 우선순위에 의해 동작하지 않을 수도 있다.
     (e.g. @CreatedDate)
-  - 참고 : Hibernate Docs(https://docs.jboss.org/hibernate/stable/entitymanager/reference/en/html/listeners.html)
+   - 참고 : Hibernate Docs(https://docs.jboss.org/hibernate/stable/entitymanager/reference/en/html/listeners.html)
 2. ApplicationEventPublisher 를 사용하는 경우, 복잡한 요구사항 핸들링이 어려울 수가 있다.(e.g. 메세지 유실, 메세지 관리)
    - 이를 해결하는 방법 중 하나는 **RabbitMQ, Kafka 와 같은 미들웨어를 도입하는 방법**을 고민해 볼 수 있다.
    - 미들웨어를 도입하는 방법은 복잡한 비즈니스 문제를 해결할 수 있는 장점이 있지만 구현이 복잡해질 수 있는 단점이 존재한다.
