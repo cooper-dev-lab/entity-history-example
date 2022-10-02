@@ -17,6 +17,8 @@
   있다.
 - ApplicationContext 의 참조를 갖는 BeanUtil 을 선언하고 EntityListener 의 필드 주입을 받았다.
 
+(참고 : https://javaslave.tistory.com/50 )
+
 **BeanUtils**
 
 ```java
@@ -67,12 +69,13 @@ public class AccountHistoryListenerV2 {
 ### (2) EntityListener 에 빈을 주입하는 방법
 
 - @Lazy : 빈을 사용할 때 프록시를 초기화하는 어노테이션
-- EntityFactoryManager 를 Bean으로 등록할 때 EntityListener 에 대해 Bean을 등록하는
-  작업이 존재하는데, EntityListener 에서 EntityManagerFactory 를 사용하는 Bean 이 존재하면 문제가 발생한다. 
-- EntityManagerFactory 를 사용하는 Repository component 가 존재할 경우, EntityManagerFactory 를 생성하기도
-  전에 EntityManagerFactory 를 사용하는 객체가 있어 예외를 발생한다.
-- 이 경우, Jpa는 SpringContainedBean 에서 Bean을 등록하는데 BeanCreate 를 실패하면 newInstance 를 생성하고 실제 
-  EntityListener 가 빈이 아니라 새로운 객체가 할당된다.
+- EntityListener 에서 EntityManagerFactory 연관된 빈을 주입하는데 주의사항
+  1. EntityFactoryManager 를 Bean으로 등록할 때 EntityListener 에 대해 Bean을 등록하는
+    작업이 존재하는데, EntityListener 에서 EntityManagerFactory 를 사용하는 Bean 이 존재하면 문제가 발생한다. 
+  2. EntityManagerFactory 를 사용하는 Repository component 가 존재할 경우, EntityManagerFactory 를 생성하기도
+    전에 EntityManagerFactory 를 사용하는 객체가 있어 예외를 발생한다.
+  3. 이 경우, Jpa는 SpringContainedBean 에서 Bean을 등록하는데 BeanCreate 를 실패하면 newInstance 를 생성하고 실제 
+    EntityListener 가 빈이 아니라 새로운 객체가 할당된다.
 
 (참고 : https://kangwoojin.github.io/programing/jpa-entity-listeners/)
 
@@ -80,7 +83,7 @@ public class AccountHistoryListenerV2 {
 
 **AccountHistoryListenerV3**
 
-```
+```java
 public class AccountHistoryListenerV3 {
 
     @Lazy
@@ -172,4 +175,8 @@ public class AccountHistoryServiceV1 {
    - 참고 : Hibernate Docs(https://docs.jboss.org/hibernate/stable/entitymanager/reference/en/html/listeners.html)
 2. ApplicationEventPublisher 를 사용하는 경우, 복잡한 요구사항 핸들링이 어려울 수가 있다.(e.g. 메세지 유실, 메세지 관리)
    - 이를 해결하는 방법 중 하나는 **RabbitMQ, Kafka 와 같은 미들웨어를 도입하는 방법**을 고민해 볼 수 있다.
-   - 미들웨어를 도입하는 방법은 복잡한 비즈니스 문제를 해결할 수 있는 장점이 있지만 구현이 복잡해질 수 있는 단점이 존재한다.
+   - 미들웨어를 도입하는 방법은 고가용성의 장점이 있지만 구현이 복잡해질 수 있는 단점이 존재한다.
+     (keyword : back pressure : publisher - subscriber 의 대응을 보조해주는 역할)
+     - 가용성(Availability) : 시스템이 정상적으로 사용 가능한 정도
+   - 추가적으로 이벤트를 전달하는 방식에는 WebFlux 가 있다. (e.g. Mono, Flux)
+<br>
