@@ -1,6 +1,5 @@
 package com.example.entityhistoryexample.application_event_publisher.listener;
 
-import com.example.entityhistoryexample.application_context_aware.domain.AccountV2;
 import com.example.entityhistoryexample.application_event_publisher.domain.AccountV1;
 import com.example.entityhistoryexample.dto.AccountHistoryRequestDto;
 import org.springframework.beans.factory.annotation.Autowired;
