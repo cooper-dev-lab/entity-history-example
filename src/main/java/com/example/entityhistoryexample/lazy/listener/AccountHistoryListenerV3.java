@@ -5,13 +5,11 @@ import com.example.entityhistoryexample.lazy.domain.AccountV3;
 import com.example.entityhistoryexample.lazy.service.AccountHistoryServiceV3;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Component;
 
 import javax.persistence.PostPersist;
 import javax.persistence.PostUpdate;
 import java.time.LocalDateTime;
 
-@Component
 public class AccountHistoryListenerV3 {
 
     @Lazy

@@ -5,13 +5,11 @@ import com.example.entityhistoryexample.application_context_aware.service.Accoun
 import com.example.entityhistoryexample.application_context_aware.utils.BeanUtils;
 import com.example.entityhistoryexample.dto.AccountHistoryRequestDto;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import javax.persistence.PostPersist;
 import javax.persistence.PostUpdate;
 import java.time.LocalDateTime;
 
-@Component
 public class AccountHistoryListenerV2 {
 
     @Autowired
