@@ -16,7 +16,6 @@ public class AccountHistoryServiceV1 {
 
     private final AccountHistoryRepositoryV1 accountHistoryRepositoryV1;
 
-    @Async
     @EventListener
     public void addAccountHistory(AccountHistoryRequestDto accountHistoryRequestDto) {
         AccountHistoryV1 accountHistoryV1 = AccountHistoryV1.create(
