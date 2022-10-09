@@ -15,15 +15,15 @@ public class AccountHistoryServiceV3 {
     private final AccountHistoryRepositoryV3 accountHistoryRepositoryV3;
 
     public void addAccountHistory(AccountHistoryRequestDto accountHistoryRequestDto) {
-        AccountHistoryV3 accountHistoryV2 = AccountHistoryV3.create(
+        AccountHistoryV3 accountHistoryV3 = AccountHistoryV3.create(
                 accountHistoryRequestDto.getAccountNumber(),
                 accountHistoryRequestDto.getBalance(),
                 accountHistoryRequestDto.getCreatedTime()
         );
 
-        accountHistoryRepositoryV3.save(accountHistoryV2);
+        accountHistoryRepositoryV3.save(accountHistoryV3);
 
-        log.debug("accountHistory added: {}", accountHistoryV2);
+        log.debug("accountHistory added: {}", accountHistoryV3);
     }
 
 }

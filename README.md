@@ -118,6 +118,9 @@ public class AccountHistoryListenerV3 {
           더이상 이벤트 객체를 생성하는데 ApplicationEvent 를 상속받을 필요가 없다.
         - **@EventListener** 가 도입되며 ApplicationListener<T> 의 하위 구현체 없이도
           이벤트 메세지를 전달받아 콜백함수를 호출할 수 있게 되었다.
+- 주의사항!!
+  - ApplicationEventPublisher 는 **동기적으로 동작**한다. 즉, ApplicationEventPublisher 가 보낸 메세지에 과한 동작이 완료되고 나서,
+    다음 동작을 실행한다. 그러므로, 별도의 쓰레드르르 통해 비동기적으로 처리하고 싶다면 `@Async` 를 추가하도록 한다.  
 
 <br>
 
@@ -179,4 +182,88 @@ public class AccountHistoryServiceV1 {
      (keyword : back pressure : publisher - subscriber 의 대응을 보조해주는 역할)
      - 가용성(Availability) : 시스템이 정상적으로 사용 가능한 정도
    - 추가적으로 이벤트를 전달하는 방식에는 WebFlux 가 있다. (e.g. Mono, Flux)
+
 <br>
+
+## 4. Hibernate listener 등록하는 방법
+
+### 1. org.hibernate.SessionFactory
+
+![image](https://user-images.githubusercontent.com/48561660/194755125-b5cb379e-0273-43cb-a7fa-8f60348e6426.png)
+(**SessionFactory 다이어그램**)
+
+1. 하이버네이트는 기본적으로 DB Connection 을 래핑한 **`org.hibernate.Session`** 단위로 동작힌다.
+2. 이 때, SessionFactory 는 Session 을 생성하는 팩토리 역할을 하며, 하위 구현체로 `SessionFactoryImpl` 이 있다. 
+   다이어그램을 확인해보면 SessionFactory 의 상위 인터페이스로 `EntityManagerFactory` 가 존재하는 것을 확인할 수 있다. 
+   즉, EntityManagerFactory 역할을 SessionFactoryImpl 클래스가 하는 것을 알 수 있다.
+
+<br>
+
+**AccountLogListenerConfig**
+
+```java
+@Slf4j
+@Configuration
+@RequiredArgsConstructor
+public class AccountHistoryConfig implements InitializingBean {
+
+    private final EntityManagerFactory entityManagerFactory;
+
+    private final AccountHistoryListener accountHistoryListener;
+
+    @Override
+    public void afterPropertiesSet() {
+        addEventListenerInSessionFactory();
+    }
+
+    private void addEventListenerInSessionFactory() {
+        SessionFactoryImpl sessionFactoryImpl = entityManagerFactory.unwrap(SessionFactoryImpl.class);
+        EventListenerRegistry eventListenerRegistry
+                = sessionFactoryImpl.getServiceRegistry().getService(EventListenerRegistry.class);
+        eventListenerRegistry.appendListeners(EventType.POST_INSERT, accountHistoryListener);
+    }
+
+}
+```
+
+**AccountHistoryListener**
+
+```java
+@Component
+@RequiredArgsConstructor
+public class AccountHistoryListener implements PostInsertEventListener {
+
+    private final AccountHistoryRepositoryV4 accountHistoryRepositoryV4;
+
+    @Override
+    public void onPostInsert(PostInsertEvent event) {
+        Object entity = event.getEntity();
+        boolean accountType = entity instanceof AccountV4;
+
+        if (accountType) {
+            saveAccountCreateHistory((AccountV4) entity);
+        }
+
+    }
+
+    private void saveAccountCreateHistory(AccountV4 accountV4) {
+        AccountHistoryV4 accountHistoryV4 = AccountHistoryV4.create(
+                accountV4.getAccountNumber(),
+                accountV4.getBalance()
+        );
+
+        accountHistoryRepositoryV4.save(accountHistoryV4);
+    }
+
+    @Override
+    public boolean requiresPostCommitHanding(EntityPersister persister) {
+        return true;
+    }
+
+}
+```
+
+
+ 
+- https://docs.jboss.org/hibernate/orm/5.6/userguide/html_single/Hibernate_User_Guide.html
+- https://medium.com/@rachit.dixit/the-magic-of-hibernate-listeners-with-spring-boot-47b61ef60bd4
